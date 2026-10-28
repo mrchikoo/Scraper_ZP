@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual envs
+.venv/
+.venv-dev/
+venv/
+
+# Local data / secrets (user data lives outside the repo; never commit credentials)
+.devdata/
+.env
+.env.*
+settings.json
+leads.json
+sent_log.txt
+suppression.txt
+chrome_profile/
+logs/
+
+# Build output
+build/
+dist/
+packaging/build/
+packaging/dist/
+*.spec.bak
+
+# OS
+.DS_Store
+Thumbs.db

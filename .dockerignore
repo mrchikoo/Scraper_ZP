@@ -1,0 +1,29 @@
+# Keep the image small and free of personal/build data.
+.git
+.github
+.venv
+venv
+env
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+.DS_Store
+**/.DS_Store
+build
+dist
+packaging
+tests
+*.md
+!app/**/*.md
+*.log
+*.csv
+*.json
+!app/**/*.json
+.env
+.env.*
+# Legacy scraper files (replaced by app/)
+main.py
+email_sender.py
+run_areas.py
+tech_searches.txt
+tracked_*.txt

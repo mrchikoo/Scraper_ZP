@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Lead Outreach</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23127a6b'/%3E%3Cpath d='M7 11l9 6 9-6M7 11v10h18V11z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 7.5l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5M5 19h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><span class="logo"><svg width="22" height="22"><use href="#i-mail"/></svg></span>
+      <div><h1>Lead Outreach</h1><p>Find local businesses. Send them a friendly hello.</p></div></div>
+    <div id="saveState" class="savestate" role="status" aria-live="polite"><span class="dot"></span><span id="saveText">All changes saved</span></div>
+  </div>
+</header>
+
+<div id="offline" class="wrap" hidden>
+  <div class="banner banner-bad" role="alert">
+    <svg width="22" height="22"><use href="#i-warn"/></svg>
+    <div><strong>The app is not responding.</strong>
+      <p>Lead Outreach may still be starting up, or it was closed. Please make sure the program is open, then try again. Your settings are safe.</p></div>
+    <button class="btn" id="retryBtn" type="button">Try again</button>
+  </div>
+</div>
+
+<main id="main" class="wrap">
+
+  <section class="card" aria-labelledby="h-progress">
+    <h2 id="h-progress">Setup progress</h2>
+    <p class="hint" id="progressSummary">Checking your setup...</p>
+    <ol class="checklist" id="checklist"></ol>
+  </section>
+
+  <section class="card" id="sec-about" aria-labelledby="h-about">
+    <h2 id="h-about"><span class="num">1</span>About you</h2>
+    <p class="hint">This is how you introduce yourself in your emails.</p>
+    <div class="grid2">
+      <div class="field"><label for="f-name">Your name</label>
+        <input id="f-name" data-field="profile.full_name" autocomplete="name" placeholder="e.g. Alex Morgan"></div>
+      <div class="field"><label for="f-biz">Your business name</label>
+        <input id="f-biz" data-field="profile.business_name" placeholder="e.g. Acme Digital Marketing"></div>
+      <div class="field"><label for="f-phone">Phone number <span class="opt">(optional)</span></label>
+        <input id="f-phone" data-field="profile.phone" type="tel" autocomplete="tel" placeholder="e.g. +91 98200 00000"></div>
+      <div class="field"><label for="f-web">Website <span class="opt">(optional)</span></label>
+        <input id="f-web" data-field="profile.website" inputmode="url" placeholder="e.g. www.yourwebsite.com"></div>
+    </div>
+    <div class="field"><label for="f-serv">What you offer <span class="opt">(optional)</span></label>
+      <textarea id="f-serv" data-field="profile.services" rows="2" placeholder="e.g. Instagram management, Google Maps listing set-up, simple websites"></textarea></div>
+  </section>
+
+  <section class="card" id="sec-gmail" aria-labelledby="h-gmail">
+    <h2 id="h-gmail"><span class="num">2</span>Gmail connection</h2>
+    <p class="hint">Your emails are sent from your own Gmail account. Gmail needs a special 16-letter code for this, called an App Password. Your normal Gmail password will not work.</p>
+    <div class="grid2">
+      <div class="field"><label for="f-email">Your Gmail address</label>
+        <input id="f-email" data-field="smtp.email" type="email" autocomplete="email" placeholder="you@gmail.com"></div>
+      <div class="field"><label for="f-pass">Gmail App Password</label>
+        <div class="pw">
+          <input id="f-pass" type="password" autocomplete="new-password" spellcheck="false" aria-describedby="pwNote" placeholder="16-letter code from Google">
+          <button class="icon-btn" id="pwToggle" type="button" aria-pressed="false" aria-label="Show password"><svg width="20" height="20"><use href="#i-eye"/></svg></button>
+        </div>
+        <p class="note ok" id="pwNote"></p>
+        <div class="err" id="err-pass" role="alert"></div></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="testSmtp" type="button">Test connection</button>
+      <span id="smtpResult" class="result" role="status" aria-live="polite"></span>
+    </div>
+
+    <details class="guide" id="guide">
+      <summary>How do I get an App Password? (takes about 3 minutes)</summary>
+      <ol class="steps">
+        <li><strong>Turn on 2-Step Verification.</strong> Open <span class="path">myaccount.google.com</span> in your browser and sign in. Click <span class="path">Security</span>. Under "How you sign in to Google", click <span class="path">2-Step Verification</span> and follow the steps (Google will text a code to your phone). If it already says "On", you can move to the next step.</li>
+        <li><strong>Open App passwords.</strong> Go to <span class="path">Google Account &rarr; Security &rarr; App passwords</span>. Tip: if you cannot find it, type "App passwords" in the search box at the top of your Google Account page.</li>
+        <li><strong>Give it a name.</strong> Type any name you like, for example <span class="path">Lead Outreach</span>, then click <span class="path">Create</span>.</li>
+        <li><strong>Copy the 16-character code.</strong> Google shows a yellow box with a code like <span class="path">abcd efgh ijkl mnop</span>. Copy it (spaces do not matter) and paste it into the App Password box above. You will not be able to see this code again, but you can always make a new one.</li>
+        <li><strong>Press "Test connection".</strong> If you see a green message, you are done.</li>
+      </ol>
+      <p class="hint">Your App Password is kept only on this computer. It is never shown again here, and it is only used to send your emails through Gmail.</p>
+    </details>
+  </section>
+
+  <section class="card" id="sec-email" aria-labelledby="h-email">
+    <h2 id="h-email"><span class="num">3</span>Your email</h2>
+    <p class="hint">Write the email once. Each business gets its own copy with their name filled in. You can click a tag below to add it where your cursor is.</p>
+    <div class="field"><label for="f-subj">Subject</label>
+      <input id="f-subj" data-field="email.subject" placeholder="A short, friendly subject line"></div>
+    <div class="field"><label for="f-body">Message</label>
+      <textarea id="f-body" data-field="email.body" rows="13"></textarea></div>
+    <div class="chips" role="group" aria-label="Insert a tag into your message">
+      <span class="chips-l">Click to add:</span>
+      <button type="button" class="chip" data-ph="my_name" title="Your name">{{my_name}}</button>
+      <button type="button" class="chip" data-ph="my_business" title="Your business name">{{my_business}}</button>
+      <button type="button" class="chip" data-ph="my_phone" title="Your phone number">{{my_phone}}</button>
+      <button type="button" class="chip" data-ph="my_website" title="Your website">{{my_website}}</button>
+      <button type="button" class="chip" data-ph="business_name" title="The name of the business you are writing to">{{business_name}}</button>
+      <button type="button" class="link" id="resetTpl">Use the sample email again</button>
+    </div>
+    <p class="hint small">A line is always added at the bottom: "If you'd rather not hear from me, just reply STOP". You cannot remove it, and that is a good thing.</p>
+
+    <h3>Preview</h3>
+    <div class="preview" aria-live="polite">
+      <div class="pv-head"><span class="pv-l">Subject</span> <span id="pvSubject">-</span></div>
+      <div class="pv-body" id="pvBody">-</div>
+      <div class="pv-foot" id="pvFiles"></div>
+    </div>
+    <p class="hint small">This is how it looks for a pretend business called "Sunrise Cafe".</p>
+
+    <h3>Attach your PDF <span class="opt">(optional)</span></h3>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add a PDF. Press Enter to choose a file, or drag one here.">
+      <svg width="30" height="30"><use href="#i-upload"/></svg>
+      <p><strong>Drag your PDF here</strong> or click to choose a file</p>
+      <p class="small">PDF files only, up to 10 MB. For example your portfolio or price list.</p>
+      <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden>
+    </div>
+    <div class="err" id="err-file" role="alert"></div>
+    <ul class="files" id="fileList"></ul>
+
+    <div class="row">
+      <button class="btn" id="testSend" type="button">Send me a test email</button>
+      <span id="testResult" class="result" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="card" id="sec-target" aria-labelledby="h-target">
+    <h2 id="h-target"><span class="num">4</span>Who to target</h2>
+    <p class="hint">First tell me <strong>where</strong> to look. Type a city or region, and I will list the areas inside it for you to pick from. Then choose the kinds of business. Start small: two or three areas is plenty.</p>
+    <h3>Where do you want to look?</h3>
+    <div class="row">
+      <div class="field grow"><label for="cityInput">City or region</label>
+        <input id="cityInput" maxlength="80" autocomplete="off" placeholder="e.g. Pune, Dubai, Manchester, Austin"></div>
+      <button type="button" class="btn" id="cityFind">Find areas</button>
+    </div>
+    <p class="hint small" id="cityStatus" role="status" aria-live="polite"></p>
+    <div id="areaBox" hidden>
+      <h3>Areas in <span id="cityName"></span> <span class="count" id="areaCount"></span></h3>
+      <div class="row">
+        <div class="field grow"><label for="areaSearch" class="sr">Search areas</label>
+          <input id="areaSearch" type="search" placeholder="Search the list of areas"></div>
+        <button class="btn btn-ghost" id="areaAll" type="button">Select all shown</button>
+        <button class="btn btn-ghost" id="areaNone" type="button">Select none</button>
+      </div>
+      <div class="checks areas" id="areaList" role="group" aria-label="Areas"></div>
+      <div class="row">
+        <div class="field grow"><label for="areaCustom" class="sr">Add an area by name</label>
+          <input id="areaCustom" maxlength="80" placeholder="Not in the list? Type an area name"></div>
+        <button type="button" class="btn" id="areaAdd">Add</button>
+      </div>
+      <div class="err" id="err-areas" role="alert"></div>
+    </div>
+    <fieldset class="modes" id="segmentBox">
+      <legend>Size of business</legend>
+      <label class="mode"><input type="radio" name="segment" value="small"><span><strong>Small businesses</strong><small>Independent shops and local firms (SMEs). Chains and very popular places are skipped.</small></span></label>
+      <label class="mode"><input type="radio" name="segment" value="mid"><span><strong>Mid-sized businesses</strong><small>Established, busy businesses and ones with several branches.</small></span></label>
+      <label class="mode"><input type="radio" name="segment" value="any" checked><span><strong>All sizes</strong><small>No filter. Everything Google Maps shows.</small></span></label>
+    </fieldset>
+    <p class="hint small">Google Maps does not show business size, so this is a good guess based on how many reviews a business has and whether it has several branches.</p>
+    <h3>Types of business</h3>
+    <div class="checks" id="typeList" role="group" aria-label="Types of business"></div>
+    <div class="row">
+      <div class="field grow"><label for="nicheInput">Your own niche (optional)</label>
+        <input id="nicheInput" maxlength="60" placeholder="e.g. wedding photographers, yoga studios, CA firms"></div>
+      <button type="button" class="btn" id="nicheAdd">Add</button>
+    </div>
+    <div class="err" id="err-types" role="alert"></div>
+  </section>
+
+  <section class="card" id="sec-run" aria-labelledby="h-run">
+    <h2 id="h-run"><span class="num">5</span>Run</h2>
+    <fieldset class="modes">
+      <legend>What should I do?</legend>
+      <label class="mode"><input type="radio" name="mode" value="scrape"><span><strong>Find businesses</strong><small>Look for emails on Google Maps. Nothing is sent.</small></span></label>
+      <label class="mode"><input type="radio" name="mode" value="send"><span><strong>Send emails</strong><small>Email the businesses already found.</small></span></label>
+      <label class="mode"><input type="radio" name="mode" value="both" checked><span><strong>Do both</strong><small>Find businesses, and send as I go.</small></span></label>
+    </fieldset>
+
+    <div class="runbar">
+      <button class="btn btn-big btn-go" id="startBtn" type="button"><svg width="22" height="22"><use href="#i-play"/></svg>Start</button>
+      <button class="btn btn-big btn-stop" id="stopBtn" type="button" disabled><svg width="22" height="22"><use href="#i-stop"/></svg>Stop</button>
+      <div class="statusbox" role="status" aria-live="polite">
+        <span class="pill" id="statePill">Ready</span>
+        <span id="stateText">Press Start when you are ready.</span>
+      </div>
+    </div>
+    <div class="err" id="err-run" role="alert"></div>
+
+    <div class="progress-wrap">
+      <div class="progress-top"><span id="progLabel">Areas checked</span><span id="progNum">0 of 0</span></div>
+      <div class="bar" role="progressbar" aria-labelledby="progLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progBar"><div id="progFill"></div></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n" id="stFound">0</div><div class="l">businesses found</div></div>
+      <div class="stat"><div class="n" id="stSent">0</div><div class="l">emails sent in total</div></div>
+      <div class="stat meter"><div class="n"><span id="stToday">0</span> <small>of <span id="stCap">100</span> today</small></div>
+        <div class="bar thin" role="meter" aria-label="Emails sent today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="dayBar"><div id="dayFill"></div></div></div>
+    </div>
+
+    <h3>What is happening</h3>
+    <div class="log" id="log" tabindex="0" role="log" aria-label="Activity log"><p class="muted">Nothing yet.</p></div>
+
+    <div class="limits">
+      <div class="field"><label for="f-cap">Most emails to send per day</label>
+        <input id="f-cap" data-field="limits.max_per_day" data-num="1" type="number" min="1" max="400" inputmode="numeric">
+        <p class="hint small">Maximum 400. A small number like 30 to 100 is safer.</p></div>
+    </div>
+
+    <div class="note-box">
+      <svg width="22" height="22"><use href="#i-mail"/></svg>
+      <div><strong>Please send responsibly</strong>
+        <p>Small daily numbers keep your Gmail account healthy; sending too many emails too fast can get it blocked. Only write to businesses your offer is truly relevant for, and keep the message honest and personal. If someone asks you to stop, press "Don't email" next to them in the results below, and never contact them again. It is your account and your name, so a little care goes a long way.</p></div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-results" aria-labelledby="h-results">
+    <h2 id="h-results"><span class="num">6</span>Results</h2>
+    <div class="row">
+      <div class="field"><label for="resFilter" class="sr">Show</label>
+        <select id="resFilter">
+          <option value="all">All</option><option value="new">Not emailed yet</option>
+          <option value="sent">Sent</option><option value="failed">Failed</option><option value="excluded">Don't email</option>
+        </select></div>
+      <div class="field grow"><label for="resSearch" class="sr">Search results</label>
+        <input id="resSearch" type="search" placeholder="Search by name, email or area"></div>
+      <button class="btn btn-ghost" id="resRefresh" type="button">Refresh</button>
+      <a class="btn" id="exportLink" href="/api/leads/export.csv" download><svg width="18" height="18"><use href="#i-download"/></svg>Export CSV</a>
+    </div>
+    <p class="hint" id="resCount" aria-live="polite"></p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th scope="col">Business</th><th scope="col">Email</th><th scope="col">Area</th><th scope="col">Status</th><th scope="col"><span class="sr">Action</span></th></tr></thead>
+        <tbody id="resBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="foot">Everything stays on this computer. <span id="verText"></span></footer>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

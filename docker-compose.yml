@@ -1,0 +1,28 @@
+# Lead Outreach with Docker. Start: docker compose up -d   Stop: docker compose down
+# The app is only reachable from this computer (127.0.0.1), never from the network.
+services:
+  lead-outreach:
+    build: .
+    image: lead-outreach:local
+    container_name: lead-outreach
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - outreach-data:/data
+    environment:
+      OUTREACH_DATA_DIR: /data
+      OUTREACH_HOST: 0.0.0.0
+      OUTREACH_PORT: "8765"
+      OUTREACH_NO_BROWSER: "1"
+      TZ: Asia/Kolkata
+    shm_size: "1gb"          # Chrome needs more shared memory than Docker's 64 MB default
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request as u,sys; sys.exit(0 if json.load(u.urlopen('http://127.0.0.1:8765/api/health', timeout=4)).get('ok') else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+volumes:
+  outreach-data:

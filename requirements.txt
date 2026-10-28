@@ -1,0 +1,7 @@
+# Runtime dependencies (Python 3.10+). Chromedriver is fetched by Selenium Manager.
+flask>=3.0,<4
+waitress>=3.0,<4
+selenium>=4.20,<5
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+# Optional, faster HTML parsing is not required: the app uses Python's built-in parser.

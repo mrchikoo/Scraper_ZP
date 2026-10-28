@@ -1,0 +1,157 @@
+name: Build Windows installer
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for a manual build (tags use the tag name)"
+        required: false
+        default: "0.0.0-dev"
+
+permissions:
+  contents: write   # needed to attach the installer to a GitHub Release
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Work out version
+        id: ver
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $v = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $v = "${{ github.event.inputs.version }}"
+            if (-not $v) { $v = "0.0.0-dev" }
+          }
+          "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Building version $v"
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller pillow pytest
+
+      - name: Check the backend contract
+        run: |
+          foreach ($p in @("app/__main__.py", "app/web/index.html", "packaging/launcher.py", "packaging/lead_outreach.spec", "packaging/installer.iss", "packaging/make_icon.py")) {
+            if (-not (Test-Path $p)) { throw "Missing required file: $p" }
+          }
+          # The launcher and Docker rely on these switches (see INSTALL_DOCKER.md).
+          $src = Get-ChildItem -Recurse -Include *.py -Path app | Get-Content -Raw
+          foreach ($needle in @("OUTREACH_HOST", "OUTREACH_NO_BROWSER", "OUTREACH_PORT", "OUTREACH_DATA_DIR")) {
+            if (-not ($src -match $needle)) { throw "Backend does not reference $needle" }
+          }
+
+      - name: Run tests
+        run: |
+          if (Test-Path tests) {
+            python -m pytest -q tests
+          } else {
+            Write-Host "No tests/ folder, skipping."
+          }
+
+      - name: Make icon
+        run: python packaging/make_icon.py
+
+      - name: Build app with PyInstaller
+        run: pyinstaller packaging/lead_outreach.spec --noconfirm --clean --distpath dist --workpath build/pyinstaller
+
+      - name: Check build output
+        run: |
+          $exe = "dist/Lead Outreach/Lead Outreach.exe"
+          if (-not (Test-Path $exe)) { throw "Missing $exe" }
+          $sm = Get-ChildItem -Recurse "dist/Lead Outreach" -Filter "selenium-manager.exe" | Select-Object -First 1
+          if (-not $sm) { throw "selenium-manager.exe was not bundled" }
+          if (-not (Get-ChildItem -Recurse "dist/Lead Outreach" -Filter "index.html" | Select-Object -First 1)) { throw "app/web was not bundled" }
+          Write-Host "Bundle OK: $exe; $($sm.FullName)"
+
+      - name: Install Inno Setup
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          if (-not (Test-Path $iscc)) { throw "Inno Setup not found at $iscc" }
+          "ISCC=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build installer
+        run: |
+          & "$env:ISCC" "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+          if (-not (Test-Path dist/installer/LeadOutreachSetup.exe)) { throw "Installer not produced" }
+
+      - name: Smoke test (silent install, start, /api/health, uninstall)
+        run: |
+          $setup = (Resolve-Path dist/installer/LeadOutreachSetup.exe).Path
+          $p = Start-Process $setup -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/CURRENTUSER","/LOG=$env:RUNNER_TEMP\setup.log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content "$env:RUNNER_TEMP\setup.log"; throw "Installer exit code $($p.ExitCode)" }
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\Lead Outreach\Lead Outreach.exe"
+          if (-not (Test-Path $exe)) { throw "Installed exe not found at $exe" }
+
+          $env:OUTREACH_DATA_DIR  = Join-Path $env:RUNNER_TEMP "outreach-smoke-data"
+          $env:OUTREACH_PORT      = "8799"
+          $env:OUTREACH_NO_BROWSER = "1"
+          $env:OUTREACH_NO_DIALOGS = "1"
+          $app = Start-Process $exe -PassThru
+          $ok = $false
+          for ($i = 0; $i -lt 60; $i++) {
+            Start-Sleep -Seconds 2
+            try {
+              $h = Invoke-RestMethod -Uri "http://127.0.0.1:8799/api/health" -TimeoutSec 3
+              if ($h.ok -eq $true) { $ok = $true; break }
+            } catch { }
+            if ($app.HasExited) { break }
+          }
+          Write-Host "Health: $($h | ConvertTo-Json -Compress)"
+          $index = Invoke-WebRequest -Uri "http://127.0.0.1:8799/" -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue
+          Get-ChildItem -Recurse "$env:OUTREACH_DATA_DIR\logs" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 80 }
+          Stop-Process -Name "Lead Outreach" -Force -ErrorAction SilentlyContinue
+          if (-not $ok) { throw "Smoke test failed: /api/health did not return ok:true" }
+          if (-not $index -or $index.StatusCode -ne 200) { throw "Smoke test failed: / did not serve the UI" }
+
+          Start-Sleep -Seconds 2
+          $unins = Join-Path $env:LOCALAPPDATA "Programs\Lead Outreach\unins000.exe"
+          $u = Start-Process $unins -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART" -Wait -PassThru
+          if ($u.ExitCode -ne 0) { throw "Uninstaller exit code $($u.ExitCode)" }
+          Write-Host "Smoke test passed."
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeadOutreachSetup-${{ steps.ver.outputs.version }}
+          path: dist/installer/LeadOutreachSetup.exe
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/installer/LeadOutreachSetup.exe
+          generate_release_notes: true
+          body: |
+            **Install:** download `LeadOutreachSetup.exe` below and follow INSTALL_WINDOWS.md.
+            Windows may show a blue "Windows protected your PC" screen: click **More info**, then **Run anyway**.
